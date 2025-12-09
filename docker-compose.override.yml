@@ -1,0 +1,21 @@
+
+services:
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "5050:80"
+
+    # Connect pgAdmin to Astro's default network
+    networks:
+      - default
+
+    depends_on:
+      - postgres
+
+networks:
+  default:
+    external: false

@@ -1,0 +1,12 @@
+crimes_project:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: postgres  # Astro uses 'postgres' hostname
+      user: postgres
+      password: postgres
+      port: 5432
+      dbname: crimes
+      schema: public
+      threads: 4
