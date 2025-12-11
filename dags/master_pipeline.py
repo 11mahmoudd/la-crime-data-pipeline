@@ -5,9 +5,7 @@ from datetime import datetime
 with DAG(
     dag_id='master_crime_pipeline',
     tags=["crime", "master"],
-    start_date=datetime(2024, 1, 1),
-    schedule_interval=None,  # Manual trigger only
-    catchup=False
+
 ) as dag:
 
     trigger_create_tables = TriggerDagRunOperator(

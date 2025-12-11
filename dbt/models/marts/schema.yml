@@ -1,0 +1,109 @@
+version: 2
+
+models:
+  - name: fact_crimes
+    description: "Fact table with all crime incidents"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date_key
+            - area_key
+            - crime_type_key
+            - victim_key
+    columns:
+      - name: crime_id
+        description: "Surrogate key for each crime"
+        tests:
+          - unique
+          - not_null
+      
+      - name: date_key
+        description: "Foreign key to dim_date"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_date')
+              field: date_key
+      
+      - name: area_key
+        description: "Foreign key to dim_area"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_area')
+              field: area_key
+      
+      - name: crime_type_key
+        description: "Foreign key to dim_crime_type"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_crime_type')
+              field: crime_type_key
+      
+      - name: victim_key
+        description: "Foreign key to dim_victim"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_victim')
+              field: victim_key
+      
+      - name: status_key
+        description: "Foreign key to dim_status"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_status')
+              field: status_key
+
+  - name: dim_area
+    columns:
+      - name: area_key
+        tests:
+          - unique
+          - not_null
+      - name: area_name
+        tests:
+          - not_null
+
+  - name: dim_crime_type
+    columns:
+      - name: crime_type_key
+        tests:
+          - unique
+          - not_null
+      - name: crm_cd_desc
+        tests:
+          - not_null
+
+  - name: dim_victim
+    columns:
+      - name: victim_key
+        tests:
+          - unique
+          - not_null
+      - name: vict_sex
+        tests:
+          - accepted_values:
+              values: ['M', 'F', 'X', 'UNKNOWN']
+
+  - name: dim_status
+    columns:
+      - name: status_key
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_date
+    columns:
+      - name: date_key
+        tests:
+          - unique
+          - not_null
+      - name: full_date
+        tests:
+          - not_null
+      - name: time_occ
+        tests:
+          - not_null

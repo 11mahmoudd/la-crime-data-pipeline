@@ -1,0 +1,48 @@
+version: 2
+
+models:
+  - name: stg_crimes
+    description: "Staging table for LA crime data with cleaned and typed columns"
+    columns:
+      - name: date_occ
+        description: "Date when the crime occurred"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: "'2020-01-01'"
+              max_value: "current_date"
+      
+      - name: time_occ
+        description: "Time when the crime occurred"
+        tests:
+          - not_null
+      
+      - name: area
+        description: "LAPD area code"
+        tests:
+          - not_null
+      
+      - name: crm_cd
+        description: "Crime code"
+        tests:
+          - not_null
+      
+      - name: vict_sex
+        description: "Victim sex (M/F/X/UNKNOWN)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['M', 'F', 'X', 'UNKNOWN']
+      
+      - name: vict_age
+        description: "Victim age"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 120
+      
+      - name: status
+        description: "Investigation status"
+        tests:
+          - not_null

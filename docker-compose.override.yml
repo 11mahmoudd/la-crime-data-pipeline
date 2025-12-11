@@ -9,13 +9,13 @@ services:
     ports:
       - "5050:80"
 
-    # Connect pgAdmin to Astro's default network
+    # Connect pgAdmin to Astro's network
     networks:
-      - default
+      - crimes_da46bc_airflow
 
     depends_on:
       - postgres
 
 networks:
-  default:
-    external: false
+  crimes_da46bc_airflow:
+    external: true

@@ -5,8 +5,6 @@ from datetime import datetime
 import pandas as pd
 
 
-
-
 with DAG(
     dag_id='create_tables',
     tags=["crime"]
