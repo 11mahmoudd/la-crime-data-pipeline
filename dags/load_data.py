@@ -4,17 +4,15 @@ from airflow.providers.postgres.hooks.postgres import PostgresHook
 import pandas as pd
 
 
-
+required_columns = [
+    "DR_NO", "DATE OCC", "TIME OCC", "AREA", "AREA NAME",
+    "Crm Cd", "Crm Cd Desc", "Vict Age", "Vict Sex",
+    "Status", "Status Desc"
+]
 
 def validate_csv_structure():
     """Validate CSV has required columns before processing"""
     import pandas as pd
-    
-    required_columns = [
-        "DATE OCC", "TIME OCC", "AREA", "AREA NAME",
-        "Crm Cd", "Crm Cd Desc", "Vict Age", "Vict Sex",
-        "Status", "Status Desc"
-    ]
     
     df = pd.read_csv("/usr/local/airflow/data/Crime_Data_from_2020_to_Present.csv", nrows=1)
     missing_cols = set(required_columns) - set(df.columns)
@@ -22,26 +20,17 @@ def validate_csv_structure():
     if missing_cols:
         raise ValueError(f"Missing required columns: {missing_cols}")
     print("✓ CSV structure validation passed")
-    df = pd.read_csv("/usr/local/airflow/data/Crime_Data_from_2020_to_Present.csv",usecols=required_columns)
 
 
 def validate_data_quality():
     """Check data quality metrics"""
     import pandas as pd
     
-    df = pd.read_csv("/usr/local/airflow/data/Processed_Crime_Data.csv")
-    # Fill missing Vict Sex with 'Unknown'
-    df["Vict Sex"].fillna("Unknown", inplace=True)
-    
-    # Replace H and - with Unknown, keep only M, F, X, Unknown
-    df["Vict Sex"] = df["Vict Sex"].replace(["H", "-"], "Unknown")
-    
-    # Convert TIME OCC from integer (845, 1530) to time format (08:45:00, 15:30:00)
-    df['TIME OCC'] = pd.to_datetime(df['TIME OCC'].astype(str).str.zfill(4), format='%H%M', errors='coerce').dt.time
-    
+    df = pd.read_csv("/usr/local/airflow/data/Crime_Data_from_2020_to_Present.csv",usecols=required_columns)
 
     # Check for nulls in critical columns
     null_checks = {
+        'DR_NO': df['DR_NO'].isnull().sum(),
         'DATE OCC': df['DATE OCC'].isnull().sum(),
         'AREA': df['AREA'].isnull().sum(),
         'Crm Cd': df['Crm Cd'].isnull().sum()
@@ -78,6 +67,7 @@ def load_data():
 
     # Define explicit data types for columns
     dtype_mapping = {
+        'dr_no': Integer,
         'date_occ': Date,
         'time_occ': Time,
         'area': Integer,
@@ -102,7 +92,7 @@ def load_data():
         
         
         chunk.to_sql(
-            name="raw_crimes",
+            name="raw_crime",
             con=engine,
             schema="raw",
             if_exists="append",     

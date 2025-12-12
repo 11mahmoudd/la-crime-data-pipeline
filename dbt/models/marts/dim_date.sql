@@ -4,7 +4,7 @@ with date_time_spine as (
     select distinct
         date_occ as date,
         time_occ as time
-    from {{ ref('stg_crimes') }}
+    from {{ ref('stg_crime') }}
     where date_occ is not null and time_occ is not null
 ),
 

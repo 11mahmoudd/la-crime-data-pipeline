@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: stg_crimes
+  - name: stg_crime
     description: "Staging table for LA crime data with cleaned and typed columns"
     columns:
       - name: date_occ

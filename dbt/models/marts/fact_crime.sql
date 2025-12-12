@@ -1,18 +1,32 @@
-{{ config(schema='dwh') }}
+{{ config(
+    schema='dwh',
+    materialized='incremental',
+    unique_key='crime_id'
+) }}
+
+{% if is_incremental() %}
+with last_run as (
+    select
+        coalesce(max(d.full_date), '1900-01-01'::date) as last_date
+    from {{ this }} f
+    left join {{ ref('dim_date') }} d
+        on f.date_key::int = d.date_key
+),
+{% endif %}
 
 with crimes as (
     select *
-    from {{ ref('stg_crimes') }}
+    from {{ ref('stg_crime') }}
+    {% if is_incremental() %}
+        where date_occ > (select last_date from last_run)
+    {% endif %}
 ),
 
 victims as (
     select
-        md5(
-            coalesce(vict_age::text,'') ||
-            coalesce(vict_sex,'UNKNOWN')
-        ) as victim_key,
+        victim_key,
         vict_age,
-        coalesce(vict_sex,'UNKNOWN') as vict_sex
+        vict_sex
     from {{ ref('dim_victim') }}
 ),
 
@@ -37,7 +51,9 @@ dates as (
 )
 
 select
+
     md5(
+        coalesce(c.dr_no::text,'') ||
         coalesce(c.date_occ::text,'') ||
         coalesce(c.time_occ::text,'') ||
         coalesce(c.area::text,'') ||
@@ -47,6 +63,7 @@ select
         coalesce(c.status,'')
     ) as crime_id,  -- surrogate primary key
 
+    c.dr_no,
     d.date_key,
     a.area_key,
     ct.crime_type_key,
@@ -54,17 +71,19 @@ select
     s.status_key
 
 from crimes c
+
 left join dates d
     on to_char(c.date_occ, 'YYYYMMDD')::int = d.date_key
-    and c.time_occ = d.time_occ
+
 left join areas a
     on c.area = a.area_key
+
 left join crime_types ct
     on c.crm_cd = ct.crime_type_key
+
 left join victims v
-    on md5(
-        coalesce(c.vict_age::text,'') ||
-        coalesce(c.vict_sex,'UNKNOWN')
-    ) = v.victim_key
+    on c.vict_age = v.vict_age
+    and c.vict_sex = v.vict_sex
+
 left join statuses s
     on c.status = s.status_key

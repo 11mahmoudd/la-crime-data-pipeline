@@ -4,7 +4,7 @@ with base as (
     select distinct
         area as area_key,
         area_name
-    from {{ ref('stg_crimes') }}
+    from {{ ref('stg_crime') }}
     where area is not null
 )
 

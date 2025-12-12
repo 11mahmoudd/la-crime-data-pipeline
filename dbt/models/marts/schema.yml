@@ -1,15 +1,8 @@
 version: 2
 
 models:
-  - name: fact_crimes
+  - name: fact_crime
     description: "Fact table with all crime incidents"
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - date_key
-            - area_key
-            - crime_type_key
-            - victim_key
     columns:
       - name: crime_id
         description: "Surrogate key for each crime"

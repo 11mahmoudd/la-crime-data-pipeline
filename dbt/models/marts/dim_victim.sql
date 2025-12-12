@@ -2,13 +2,17 @@
 
 with base as (
     select distinct
+                -- Generate victim surrogate key
         md5(
             coalesce(vict_age::text,'') ||
-            coalesce(vict_sex,'UNKNOWN')  -- replace null/undefined with 'UNKNOWN'
+            case 
+                when upper(trim(vict_sex)) in ('M', 'F', 'X') then upper(trim(vict_sex))
+                else 'UNKNOWN'
+            end
         ) as victim_key,
         vict_age,
-        coalesce(vict_sex, 'UNKNOWN') as vict_sex  -- replace null/undefined with 'UNKNOWN'
-    from {{ ref('stg_crimes') }}
+        vict_sex  
+    from {{ ref('stg_crime') }}
 )
 
 select * from base

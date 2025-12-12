@@ -32,6 +32,7 @@ models:
   crimes_project:
     stg:
       +schema: stg 
+      +materialized: table
       # Allow individual models to override materialization
       
     marts:

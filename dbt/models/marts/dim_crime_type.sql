@@ -4,7 +4,7 @@ with base as (
     select distinct
         crm_cd as crime_type_key,
         crm_cd_desc
-    from {{ ref('stg_crimes') }}
+    from {{ ref('stg_crime') }}
     where crm_cd is not null
 )
 
