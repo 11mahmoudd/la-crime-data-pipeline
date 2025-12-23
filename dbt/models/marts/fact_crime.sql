@@ -4,22 +4,20 @@
     unique_key='crime_id'
 ) }}
 
-{% if is_incremental() %}
-with last_run as (
-    select
-        coalesce(max(d.full_date), '1900-01-01'::date) as last_date
-    from {{ this }} f
-    left join {{ ref('dim_date') }} d
-        on f.date_key::int = d.date_key
-),
-{% endif %}
-
 with crimes as (
+
     select *
     from {{ ref('stg_crime') }}
+
     {% if is_incremental() %}
-        where date_occ > (select last_date from last_run)
+    where date_occ > (
+        select coalesce(max(d.full_date), date '1900-01-01')
+        from {{ this }} f
+        join {{ ref('dim_date') }} d
+        on f.date_key = d.date_key
+    )
     {% endif %}
+
 ),
 
 victims as (
